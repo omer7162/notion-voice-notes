@@ -1,0 +1,472 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Voice Notes GPT</title>
+    <style>
+        /* CSS styles remain the same as previously provided */
+    </style>
+</head>
+<body>
+    <h1>Voice Notes GPT</h1>
+	<br/>
+    <div class="input-group">
+        <label for="notionPageId" style="animation-delay: 0.5s;" >Notion Page URL</label>
+        <input type="text" id="notionPageId" placeholder="e.g. https://www.notion.so/My-Page-1429989fe8ac4effbc8f57f56486db54">
+    </div>
+    <div class="textarea-group">
+        <label for="actionSchema" style="animation-delay: 1s;" >Instructions</label>
+        <textarea id="actionSchema" style="height: 7em;" >Add a new page to notion based on the input.
+Choose a short title (up to 5 words) based on the content of the input.
+The contents of the page you add to Notion should be word for word what the input is
+Each new page you add should be under this page id: {notion-page-id}</textarea>
+        <button class="copy-btn" onclick="copyText('actionSchema')">Copy</button>
+    </div>
+    <div class="textarea-group">
+        <label for="exampleArea" style="animation-delay: 1.5s;">Action Schema</label>
+        <textarea id="exampleArea" style="height: 7em;">
+{
+  "openapi": "3.1.0",
+  "info": {
+    "title": "Notion API",
+    "version": "1.0.0"
+  },
+  "servers": [
+    {
+      "url": "https://api.notion.com/v1"
+    }
+  ],
+  "paths": {
+    "/pages": {
+      "post": {
+        "summary": "Create a new page",
+        "operationId": "createPage",
+        "tags": ["Pages"],
+        "requestBody": {
+          "description": "Data for creating a new page",
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/NewPageRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Page created successfully"
+          }
+        },
+        "parameters": [
+          {
+            "name": "Notion-Version",
+            "in": "header",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "example": "2022-06-28"
+            }
+          }
+        ]
+      }
+    }
+  },
+  "components": {
+    "schemas": {
+      "NewPageRequest": {
+        "type": "object",
+        "properties": {
+          "parent": {
+            "type": "object",
+            "properties": {
+              "page_id": {
+                "type": "string"
+              }
+            }
+          },
+          "properties": {
+            "type": "object",
+            "properties": {
+              "title": {
+                "type": "object",
+                "properties": {
+                  "title": {
+                    "type": "array",
+                    "items": {
+                      "type": "object",
+                      "properties": {
+                        "type": {
+                          "type": "string"
+                        },
+                        "text": {
+                          "type": "object",
+                          "properties": {
+                            "content": {
+                              "type": "string"
+                            }
+                          }
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "children": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "object": {
+                  "type": "string"
+                },
+                "type": {
+                  "type": "string"
+                },
+                "paragraph": {
+                  "type": "object",
+                  "properties": {
+                    "rich_text": {
+                      "type": "array",
+                      "items": {
+                        "type": "object",
+                        "properties": {
+                          "type": {
+                            "type": "string"
+                          },
+                          "text": {
+                            "type": "object",
+                            "properties": {
+                              "content": {
+                                "type": "string"
+                              }
+                            }
+                          }
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        },
+        "required": ["parent", "properties", "children"]
+      }
+    },
+    "securitySchemes": {
+      "BearerAuth": {
+        "type": "http",
+        "scheme": "bearer",
+        "bearerFormat": "JWT"
+      }
+    }
+  },
+  "security": [
+    {
+      "BearerAuth": []
+    }
+  ]
+}
+</textarea>
+        <button class="copy-btn" onclick="copyText('exampleArea')">Copy</button>
+    </div>
+	<br/>
+  <div class="icon-container">
+        <img src="icon.png" alt="Icon" class="icon-image">
+        <a href="icon.png" download="icon.png">
+            <button class="download-btn">Download Icon</button>
+        </a>
+    </div>
+   <div class="toast" id="toast">Copied!</div>
+   	<br/>
+		<br/>
+   <style>
+.icon-container {
+            margin-top: 20px;
+            text-align: left; /* Aligns the container to the left */
+            padding-left: 15%; /* Adjust as per your layout */
+        }
+
+        .icon-image {
+            width: 100px; /* Adjust as needed */
+            height: auto;
+            display: block; /* Ensures the image is a block-level element */
+            margin-bottom: 10px; /* Space between icon and button */
+        }
+
+        .download-btn {
+            padding: 10px 20px;
+            background-color: #007bff;
+            color: white;
+            border: none;
+            border-radius: 8px;
+            font-size: 16px;
+            cursor: pointer;
+        }
+
+        .download-btn:hover {
+            background-color: #0056b3;
+        }
+body {
+    font-family: 'Helvetica Neue', sans-serif;
+    background-color: #fff;
+    padding: 0;
+    margin: 0;
+    color: #333;
+    text-align: left;
+}
+
+h1 {
+    margin: 20px auto; /* Centered horizontally with auto margins */
+    width: 30%; /* Same width as input and textarea groups */
+    font-size: 48px; /* Large font size for emphasis */
+    color: #333;
+    font-weight: 700; /* Bold weight for visibility */
+    letter-spacing: -2px; /* Tighten letter spacing for style */
+    text-align: center; /* Center align the title text */
+    background-image: linear-gradient(45deg, #6dd5ed, #2193b0); /* Gradient text */
+    -webkit-background-clip: text; /* Clipping the background to the text */
+    color: transparent;
+    display: block; /* Changed from inline-block to block for width to take effect */
+    padding: 10px 20px; /* Padding around text */
+    border-radius: 10px; /* Rounded corners for aesthetic */
+    box-shadow: 0 10px 20px rgba(0,0,0,0.3); /* Box shadow for depth */
+    opacity: 1; /* Since it's not animating */
+    transform: translateY(-20px); /* Initial position for animation */
+    opacity: 0; /* Start with h1 invisible */
+    animation: loadAnimation 1.5s ease forwards; /* Animation on load */
+}
+
+/* Animation for h1 on page load */
+@keyframes loadAnimation {
+    0% {
+        transform: translateY(-20px); /* Starting from above */
+        opacity: 0;
+    }
+    100% {
+        transform: translateY(0); /* End at normal position */
+        opacity: 1;
+    }
+}
+
+/* Responsive design adjustments for smaller screens */
+@media (max-width: 768px) {
+    h1 {
+        font-size: 36px; /* Smaller font size for mobile */
+    }
+}
+
+.input-group, .textarea-group {
+    margin: 20px auto;
+    width: 70%;
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+}
+
+label {
+    margin-bottom: 8px;
+    color: #555;
+    font-size: 22px;
+    font-weight: bold;
+    animation: slideInLeft 1s ease-in-out;
+}
+
+input, textarea {
+	resize: none;
+    width: 100%;
+    padding: 12px 20px;
+    margin-bottom: 15px;
+    border: 2px solid #ddd;
+    border-radius: 8px;
+    background-color: #f7f7f7;
+    font-size: 16px;
+    color: #333;
+}
+
+input:focus, textarea:focus {
+    border-color: #007bff;
+}
+
+.copy-btn {
+    padding: 10px 20px;
+    background-color: #007bff;
+    color: white;
+    border: none;
+    border-radius: 8px;
+    font-size: 16px;
+    cursor: pointer;
+}
+
+.copy-btn:hover {
+    background-color: #0056b3;
+}
+
+.toast {
+    visibility: hidden;
+    min-width: 250px;
+    background: linear-gradient(135deg, #007bff, #6610f2); /* Modern gradient background */
+    color: white;
+    text-align: center;
+    border-radius: 12px;
+    padding: 20px;
+    position: fixed;
+    z-index: 1;
+    left: 50%;
+    top: 50%;
+    transform: translate(-50%, -50%) scale(0.5);
+    font-size: 24px; /* Larger font size */
+    font-weight: bold; /* Bold font */
+    font-family: 'Open Sans', sans-serif; /* A more modern font family */
+    box-shadow: 0 10px 20px rgba(0, 0, 0, 0.25);
+    border: 1px solid rgba(255, 255, 255, 0.2); /* Subtle border */
+    transition: transform 0.3s ease-in-out, opacity 0.3s ease-in-out;
+    overflow: hidden; /* Ensures no overflow for internal animations */
+}
+
+/* Optional: Import the Open Sans font from Google Fonts */
+@import url('https://fonts.googleapis.com/css2?family=Open+Sans:wght@700&display=swap');
+
+
+.toast::before {
+    content: '';
+    position: absolute;
+    top: 0; left: 0;
+    width: 100%; height: 100%;
+    background: linear-gradient(135deg, rgba(255, 255, 255, 0.1), transparent);
+    animation: slideDiagonal 3s linear infinite;
+}
+
+.toast::after {
+    content: '';
+    position: absolute;
+    bottom: 0; right: 0;
+    width: 100%; height: 100%;
+    background: linear-gradient(315deg, rgba(255, 255, 255, 0.1), transparent);
+    animation: slideDiagonalReverse 3s linear infinite;
+}
+
+@keyframes slideDiagonal {
+    0% { transform: translateX(-100%); }
+    100% { transform: translateX(100%); }
+}
+
+@keyframes slideDiagonalReverse {
+    0% { transform: translateY(100%); }
+    100% { transform: translateY(-100%); }
+}
+
+.show {
+    visibility: visible;
+    opacity: 1;
+    transform: translate(-50%, -50%) scale(1);
+}
+
+@keyframes fadeInScaleUp {
+    0% {
+        opacity: 0;
+        transform: translate(-50%, -50%) scale(0.5);
+    }
+    100% {
+        opacity: 1;
+        transform: translate(-50%, -50%) scale(1);
+    }
+}
+
+@keyframes fadeOutScaleDown {
+    0% {
+        opacity: 1;
+        transform: translate(-50%, -50%) scale(1);
+    }
+    100% {
+        opacity: 0;
+        transform: translate(-50%, -50%) scale(0.5);
+    }
+}
+
+
+
+@keyframes fadeIn {
+    from {opacity: 0; transform: translateY(-20px);}
+    to {opacity: 1; transform: translateY(0);}
+}
+
+@keyframes slideInLeft {
+    0% { opacity: 0; transform: translateX(-50px); }
+    100% { opacity: 1; transform: translateX(0); }
+}
+
+
+/* Responsive design for smaller screens */
+@media (max-width: 768px) {
+    .input-group, .textarea-group {
+        width: 100%;
+    }
+}
+
+
+
+    </style>
+
+    <script>
+        const originalJsonTemplate = "Add a new page to notion based on the input.\nChoose a short title (up to 5 words) based on the content of the input.\nThe contents of the page you add to Notion should be word for word what the input is\nEach new page you add should be under this page id: {notion-page-id}";
+
+        function copyText(elementId) {
+            let element = document.getElementById(elementId);
+            element.select();
+            document.execCommand('copy');
+            window.getSelection().removeAllRanges(); // Deselect text
+
+            // Trigger animation
+            let button = document.querySelector(`[onclick="copyText('${elementId}')"]`);
+            button.style.animation = 'buttonPress 0.4s';
+            setTimeout(() => button.style.animation = '', 400);
+        }
+		 function extractPageId(url) {
+        const regex = /([a-zA-Z0-9]+)$/; // Regex to match the last alphanumeric string in the URL
+        const matches = url.match(regex);
+        return matches ? matches[1] : '';
+    }
+
+           document.getElementById('notionPageId').addEventListener('input', function() {
+        let notionPageUrl = this.value;
+        let notionPageId = extractPageId(notionPageUrl); // Extract the page ID from the URL
+        let actionSchema = document.getElementById('actionSchema');
+        actionSchema.value = originalJsonTemplate.replace(/\{notion-page-id\}/g, notionPageId);
+    });
+        function showToast() {
+            var toast = document.getElementById("toast");
+            toast.classList.add("show");
+            setTimeout(function(){ toast.classList.remove("show"); }, 2000);
+        }
+        function copyText(elementId) {
+    let element = document.getElementById(elementId);
+    element.select();
+    document.execCommand('copy');
+    window.getSelection().removeAllRanges(); // Deselect text
+
+    // Trigger animation
+    let button = document.querySelector(`[onclick="copyText('${elementId}')"]`);
+    button.style.animation = 'buttonPress 0.4s';
+    setTimeout(() => button.style.animation = '', 400);
+
+    // Show toast notification
+    showToast();
+}
+
+function showToast() {
+    var toast = document.getElementById("toast");
+    toast.classList.add("show");
+    toast.style.animation = 'fadeInScaleUp 0.3s';
+    setTimeout(function(){
+        toast.style.animation = 'fadeOutScaleDown 0.3s';
+        toast.classList.remove("show");
+    }, 2000);
+}
+
+    </script>
+</body>
+</html>
